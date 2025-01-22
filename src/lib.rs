@@ -1,8 +1,7 @@
 use dicom::dump::dump_file_to;
 use dicom::object::{open_file, DefaultDicomObject};
 use dicom::pixeldata::PixelDecoder;
-use std::io::{Error, ErrorKind};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 
 // [TODO] handle errors gracefully
@@ -21,11 +20,10 @@ pub fn show_number_of_images(file: PathBuf) -> u32 {
     images.number_of_frames()
 }
 
-//generate image from the frame number and delete it afterwards.
+// [TODO] generate image from the frame number and save it in either jpg or png.
 pub fn dump_pixel_data_of_an_image(img_ind: u32) {}
 
 //dump entire file metadata on screen
-// [TODO] better to dump the data to a file rather than he screen
 pub fn display_metadata(file: PathBuf) {
 	let file_name = file.clone().into_os_string().into_string().unwrap();
 	let vec_file_name: Vec<&str> = file_name.split('/').collect();

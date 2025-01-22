@@ -11,10 +11,9 @@ use rs_dicom::display_metadata;
     about="cli to display information in dicom files",
     long_about=None
 )]
-#[command(name="dcm_cli")]
 struct Args {
     /// file to display
-    file: String,
+    file: Vec<String>,
 
     /// Specific image frame to dump
     #[arg(short, long, value_name="image_frame")]
@@ -30,6 +29,7 @@ struct Args {
 	 
 }
 
+
 //parse arguments and pass them to functions from lib.rs
 
 //
@@ -38,12 +38,20 @@ fn main() {
 	let file = args.file;
 	if let Some(val) = args.list.or(None) {
 		if val {
-			println!("{}",show_number_of_images(file.clone().into()));
+			for i in &file {
+				println!("{}", i.clone());
+				println!("{}", show_number_of_images(i.clone().into()));
+			}
+			//println!("{}",show_number_of_images(file.clone().into()));
 		}
 	}
 	
 	if let Some(dump) = args.dump.or(None) {
-		if dump { display_metadata(file.clone().into()); }
+		if dump { 
+			for i in &file {
+			display_metadata(i.clone().into()); 
+			}
 	}
 
+}
 }
