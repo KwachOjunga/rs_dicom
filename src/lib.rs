@@ -27,8 +27,10 @@ pub fn dump_pixel_data_of_an_image(img_ind: u32) {}
 //dump entire file metadata on screen
 // [TODO] better to dump the data to a file rather than he screen
 pub fn display_metadata(file: PathBuf) {
+	let file_name = file.clone().into_os_string().into_string().unwrap();
+	let vec_file_name: Vec<&str> = file_name.split('/').collect();
 	let file = _read_file_to_memory(file);
-	let output_file = std::fs::File::create("metadata.txt").unwrap();
+	let output_file = std::fs::File::create(format!("{}.txt",vec_file_name[vec_file_name.len()-1])).unwrap();
 	if file != None {
 			dump_file_to(output_file,&file.unwrap()).unwrap();
 		}else{ println!("Check if the file exists");}
