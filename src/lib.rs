@@ -28,9 +28,9 @@ pub fn dump_pixel_data_of_an_image(img_ind: u32) {}
 // [TODO] better to dump the data to a file rather than he screen
 pub fn display_metadata(file: PathBuf) {
 	let file = _read_file_to_memory(file);
-	let output = std::io::stdout();
+	let output_file = std::fs::File::create("metadata.txt").unwrap();
 	if file != None {
-			dump_file_to(output,&file.unwrap()).unwrap();
+			dump_file_to(output_file,&file.unwrap()).unwrap();
 		}else{ println!("Check if the file exists");}
 	
 }
