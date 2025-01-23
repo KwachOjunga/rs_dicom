@@ -2,6 +2,7 @@
 use clap::Parser;
 use dicom::pixeldata::Error;
 use rs_dicom::{display_metadata, dump_pixel_data_of_an_image, show_number_of_images};
+
 #[derive(Parser, Debug)]
 #[command(name = "dcm_cli")]
 #[command(version = "0.1")]
@@ -10,9 +11,13 @@ struct Args {
     /// file to display
     file: Vec<String>,
 
-    /// Specific image frame to dump
+    /// Specific image frame to extract as png
     #[arg(short, long, value_name = "image_frame_number")]
     image_to_dump: Option<u32>,
+
+    /// extract all images to a directory
+    #[arg(short, long, value_name = "extract_all_images")]
+    extract: Option<bool>,
 
     /// Diplay number of images in the file
     #[arg(short, long)]
@@ -44,9 +49,26 @@ fn main() -> Result<(), Error> {
         }
     }
 
+	//[TODO] there must be a bug in this return type
     match args.image_to_dump {
         Some(num) => {
             dump_pixel_data_of_an_image(file[0].clone().into(), num);
+            ()
+        }
+        _ => (),
+    }
+
+
+    match args.extract {
+        Some(val) => {
+            if val {
+                for i in &file {
+                    let (_, num) = show_number_of_images(i.clone().into())?;
+                    for ind in 0..num {
+                        dump_pixel_data_of_an_image(i.clone().into(), ind);
+                    }
+                }
+            }
             Ok(())
         }
         _ => Ok(()),

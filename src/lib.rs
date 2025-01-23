@@ -7,8 +7,12 @@ use std::path::PathBuf;
 // [TODO] handle errors gracefully
 fn _read_file_to_memory(file: PathBuf) -> Option<DefaultDicomObject> {
     if file.as_path().exists() {
-        let dcm_file = open_file(file).unwrap();
-        Some(dcm_file)
+        let dcm_file = open_file(file).inspect_err(|e| eprintln!("File opening failed:{e}"));
+        if dcm_file.is_ok() {
+            dcm_file.ok()
+        } else {
+            None
+        }
     } else {
         None
     }
@@ -38,9 +42,17 @@ pub fn dump_pixel_data_of_an_image(file: PathBuf, img_ind: u32) {
     } else {
         let file = file.decode_pixel_data().unwrap();
         let img = file.to_dynamic_image(img_ind - 1).unwrap();
-        let v_filename: Vec<&str> = file_name.split('/').collect();
-        img.save(format!("{}.png", v_filename[v_filename.len() - 1]))
-            .unwrap();
+        let v_filename: Vec<&str> = if cfg!(windows) {
+            file_name.split('\\').collect()
+        } else {
+            file_name.split('/').collect()
+        };
+        img.save(format!(
+            "{}_{}.png",
+            v_filename[v_filename.len() - 1],
+            img_ind
+        ))
+        .unwrap();
         ()
     }
 }
