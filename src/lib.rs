@@ -1,5 +1,6 @@
 use dicom::dump::dump_file_to;
 use dicom::object::{open_file, DefaultDicomObject};
+use dicom::pixeldata::Error;
 use dicom::pixeldata::PixelDecoder;
 use std::path::PathBuf;
 
@@ -13,18 +14,24 @@ fn _read_file_to_memory(file: PathBuf) -> Option<DefaultDicomObject> {
     }
 }
 
-pub fn show_number_of_images(file: PathBuf) -> (DefaultDicomObject, u32) {
+// [TODO] reproduce the bug in this function when it's handling a file whose value representation is altered.
+pub fn show_number_of_images(file: PathBuf) -> Result<(DefaultDicomObject, u32), Error> {
     let file = _read_file_to_memory(file).expect("Check if the file exists.");
-    let images = file.decode_pixel_data().unwrap();
-    let num = images.number_of_frames();
-    //println!("{}", num);
-    (file, num)
+    let images = file
+        .decode_pixel_data()
+        .inspect_err(|e| eprintln!("operation failed: {e}"));
+    if images.is_ok() {
+        let num = images?.number_of_frames();
+        Ok((file, num))
+    } else {
+        Err(images.err().unwrap())
+    }
 }
 
 // [TODO] generate image from the frame number and save it in either jpg or png.
 pub fn dump_pixel_data_of_an_image(file: PathBuf, img_ind: u32) {
     let file_name = file.clone().into_os_string().into_string().unwrap();
-    let (file, num) = show_number_of_images(file.into());
+    let (file, num) = show_number_of_images(file.into()).unwrap();
     if num < img_ind {
         println!("That index is out of index range. Current number of frames is {num}");
         ()
