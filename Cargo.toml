@@ -6,5 +6,7 @@ edition = "2021"
 [dependencies]
 clap = { version = "4.5.26", features = ["derive"] }
 dicom = { version = "0.8.0", features = ["image", "ndarray"] }
+nifti = { version = "0.16.0", features = ["nalgebra"] }
+nshare = { version = "0.10.0", features = ["nalgebra", "alloc", "image", "ndarray"] }
 
 
