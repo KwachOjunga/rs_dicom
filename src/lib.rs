@@ -20,7 +20,7 @@ fn _read_file_to_memory(file: PathBuf) -> Option<DefaultDicomObject> {
 
 // [TODO] reproduce the bug in this function when it's handling a file whose value representation is altered.
 pub fn show_number_of_images(file: PathBuf) -> Result<(DefaultDicomObject, u32), Error> {
-    let file = _read_file_to_memory(file).expect("Check if the file exists.");
+    let file = _read_file_to_memory(file).inspect(|e| eprintln!("Check if the file exists:{e:?}")).unwrap();
     let images = file
         .decode_pixel_data()
         .inspect_err(|e| eprintln!("operation failed: {e}"));

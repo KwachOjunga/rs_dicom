@@ -12,25 +12,25 @@ struct Args {
     file: Vec<String>,
 
     /// Specific image frame to extract as png
-    #[arg(short, long, value_name = "image_frame_number")]
-    image_to_dump: Option<u32>,
+    #[arg(short, long, value_name = "frame_number(s)")]
+    image_to_dump: Option<Vec<u32>>,
 
     /// extract all images to a directory
-    #[arg(short, long, value_name = "extract_all_images")]
+    #[arg(short, long, value_name = "true/false")]
     extract: Option<bool>,
 
     /// Diplay number of images in the file
-    #[arg(short, long)]
+    #[arg(short, long, value_name = "true/false")]
     list: Option<bool>,
 
     /// Dump entire file metadata on screen
-    #[arg(long, short, default_value = "false")]
+    #[arg(long, short)]
     dump: Option<bool>,
 }
 
 fn main() -> Result<(), Error> {
     let args = Args::parse();
-    let file = args.file;
+    let file = args.file.clone();
     if let Some(val) = args.list.or(None) {
         if val {
             for i in &file {
@@ -49,22 +49,26 @@ fn main() -> Result<(), Error> {
         }
     }
 
-	//[TODO] there must be a bug in this return type
+    //[TODO] there must be a bug in this return type
     match args.image_to_dump {
-        Some(num) => {
-            dump_pixel_data_of_an_image(file[0].clone().into(), num);
+        Some(ref num) => {
+		let total = num.clone();
+            for frame in total {
+                for i in &file {
+                    dump_pixel_data_of_an_image(i.as_str().into(), frame);
+                }
+            }
             ()
         }
         _ => (),
     }
 
-
     match args.extract {
-        Some(val) => {
-            if val {
+        Some(extract) => {
+            if extract {
                 for i in &file {
-                    let (_, num) = show_number_of_images(i.clone().into())?;
-                    for ind in 0..num {
+                    let (_, num) = show_number_of_images(i.as_str().into())?;
+                    for ind in 1..=num {
                         dump_pixel_data_of_an_image(i.clone().into(), ind);
                     }
                 }
