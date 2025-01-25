@@ -1,7 +1,11 @@
 //! This file illustrates various ways of manipulating  a dicom file via a command line interface.
 use clap::Parser;
 use dicom::pixeldata::Error;
-use rs_dicom::{display_metadata, dump_pixel_data_of_an_image, show_number_of_images};
+use rs_dicom::error;
+use rs_dicom::{
+    display_metadata, dump_pixel_data_of_an_image, dump_pixeldata_of_multiple_images,
+    show_number_of_images,
+};
 
 #[derive(Parser, Debug)]
 #[command(name = "dcm_cli")]
@@ -13,7 +17,7 @@ struct Args {
 
     /// Specific image frame to extract as png
     #[arg(short, long, value_name = "frame_number(s)")]
-    image_to_dump: Option<Vec<u32>>,
+    image_to_dump: Vec<u32>,
 
     /// extract all images to a directory
     #[arg(short, long, value_name = "true/false")]
@@ -24,18 +28,25 @@ struct Args {
     list: Option<bool>,
 
     /// Dump entire file metadata on screen
-    #[arg(long, short)]
+    #[arg(long, short, value_name=None)]
     dump: Option<bool>,
 }
 
-fn main() -> Result<(), Error> {
+fn main() -> Result<(), error::CliError> {
     let args = Args::parse();
     let file = args.file.clone();
+    let images_option = if !args.image_to_dump.is_empty() {
+        args.image_to_dump
+    } else {
+        vec![]
+    };
+    let length = images_option.len();
+
     if let Some(val) = args.list.or(None) {
         if val {
             for i in &file {
                 println!("{}", i.clone());
-                let (_, num) = show_number_of_images(i.clone().into())?;
+                let (_, num) = show_number_of_images(i.clone().into()).unwrap();
                 println!("{}", num);
             }
         }
@@ -50,26 +61,42 @@ fn main() -> Result<(), Error> {
     }
 
     //[TODO] there must be a bug in this return type
-    match args.image_to_dump {
-        Some(ref num) => {
-		let total = num.clone();
-            for frame in total {
-                for i in &file {
-                    dump_pixel_data_of_an_image(i.as_str().into(), frame);
-                }
-            }
-            ()
+    //match &args.image_to_dump {
+    //  Some( num) => {
+    //    	let length = num.len();
+    //	for i in &file {
+    //      if length > 1 {
+    //        dump_pixeldata_of_multiple_images(i.clone().into(), num);
+    //  } else {
+    //    dump_pixel_data_of_an_image(i.clone().into(), num[0]);
+    // }
+    //}
+    //()
+    //}
+    // _ => (),
+    //}
+
+    // primary concern remains if the number of frames needed to be generated exceed 1
+    if length > 1 {
+        for i in &file {
+            let i = i.clone();
+            let _ = dump_pixeldata_of_multiple_images(i.into(), &images_option);
         }
-        _ => (),
+    } else if length == 1 {
+        for i in &file {
+            let _ = dump_pixel_data_of_an_image(i.clone().into(), images_option[0]);
+        }
+    } else {
+        ()
     }
 
     match args.extract {
         Some(extract) => {
             if extract {
                 for i in &file {
-                    let (_, num) = show_number_of_images(i.as_str().into())?;
+                    let (_, num) = show_number_of_images(i.as_str().into()).unwrap();
                     for ind in 1..=num {
-                        dump_pixel_data_of_an_image(i.clone().into(), ind);
+                        let _ = dump_pixel_data_of_an_image(i.clone().into(), ind);
                     }
                 }
             }
