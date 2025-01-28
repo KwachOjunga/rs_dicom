@@ -46,7 +46,7 @@ fn main() -> Result<(), error::CliError> {
         if val {
             for i in &file {
                 println!("{}", i.clone());
-                let (_, num) = show_number_of_images(i.clone().into()).unwrap();
+                let (_, num) = show_number_of_images(i.clone().into())?;
                 println!("{}", num);
             }
         }
