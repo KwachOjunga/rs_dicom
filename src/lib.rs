@@ -1,22 +1,42 @@
 use dicom::dump::dump_file_to;
 use dicom::object::{open_file, DefaultDicomObject};
-//use dicom::pixeldata::Error;
 use dicom::pixeldata::PixelDecoder;
 use std::io::ErrorKind;
 use std::path::PathBuf;
+use std::process::{Command, Stdio};
 pub mod error;
+
+fn _check_whether_file_is_dicom(file: &PathBuf) -> error::Result<bool> {
+    if file.as_path().exists() {
+	let n_file = file.as_path().as_os_str().to_str().unwrap();
+        let command = Command::new("file")
+            .arg(n_file)
+            .stdout(Stdio::piped())
+            .output()
+            .expect("Failed to execute command");
+        let cmd_out = String::from_utf8_lossy(&command.stdout);
+        if cmd_out.contains("DICOM medical imaging data") {
+            Ok(true)
+        } else {
+            Err(std::io::Error::from(ErrorKind::Unsupported).into())
+        }
+    } else {
+        Err(std::io::Error::from(ErrorKind::NotFound).into())
+    }
+}
 
 // [TODO] handle errors gracefully -- this None value ought not be returned arbitrarily
 fn _read_file_to_memory(file: PathBuf) -> error::Result<DefaultDicomObject> {
-    if file.as_path().exists() {
+    let file_nat = _check_whether_file_is_dicom(&file)?;
+    if file_nat != true {
+        panic!("Not a dicom file");
+    } else {
         let dcm_file = open_file(file).inspect_err(|e| eprintln!("File opening failed:{e}"));
         if dcm_file.is_ok() {
             Ok(dcm_file?)
         } else {
             Err(dcm_file.expect_err("file is not ok").into())
         }
-    } else {
-        Err(std::io::Error::from(ErrorKind::NotFound).into())
     }
 }
 
@@ -37,15 +57,6 @@ pub fn show_number_of_images(file: PathBuf) -> Result<(DefaultDicomObject, u32),
         }
         _ => Err(file.unwrap_err()),
     }
-    //let images = file
-    //  .decode_pixel_data()
-    //.inspect_err(|e| eprintln!("operation failed: {e}"));
-    //if images.is_ok() {
-    //  let num = images?.number_of_frames();
-    // Ok((file, num))
-    //} else {
-    //  Err(images.err().unwrap())
-    //}
 }
 
 // [TODO] generate image from the frame number and save it in either jpg or png.
