@@ -1,6 +1,6 @@
 //! This file illustrates various ways of manipulating  a dicom file via a command line interface.
 use clap::Parser;
-use dicom::pixeldata::Error;
+//use dicom::pixeldata::Error;
 use rs_dicom::error;
 use rs_dicom::{
     display_metadata, dump_pixel_data_of_an_image, dump_pixeldata_of_multiple_images,
@@ -21,15 +21,15 @@ struct Args {
 
     /// extract all images to a directory
     #[arg(short, long, value_name = "true/false")]
-    extract: Option<bool>,
+    extract: bool,
 
     /// Diplay number of images in the file
     #[arg(short, long, value_name = "true/false")]
-    list: Option<bool>,
+    list: bool,
 
     /// Dump entire file metadata on screen
     #[arg(long, short, value_name=None)]
-    dump: Option<bool>,
+    dump: bool,
 }
 
 fn main() -> Result<(), error::CliError> {
@@ -42,23 +42,22 @@ fn main() -> Result<(), error::CliError> {
     };
     let length = images_option.len();
 
-    if let Some(val) = args.list.or(None) {
-        if val {
-            for i in &file {
-                println!("{}", i.clone());
-                let (_, num) = show_number_of_images(i.clone().into())?;
-                println!("{}", num);
-            }
+    //if let Some(val) = args.list.or(None) {
+    if args.list {
+        for i in &file {
+            println!("{}", i.clone());
+            let (_, num) = show_number_of_images(i.clone().into())?;
+            println!("{}", num);
         }
     }
 
-    if let Some(dump) = args.dump.or(None) {
-        if dump {
-            for i in &file {
-                display_metadata(i.clone().into());
-            }
+    //if let Some(dump) = args.dump.or(None) {
+    if args.dump {
+        for i in &file {
+            display_metadata(i.clone().into());
         }
     }
+    //}
 
     //[TODO] there must be a bug in this return type
     //match &args.image_to_dump {
@@ -90,18 +89,19 @@ fn main() -> Result<(), error::CliError> {
         ()
     }
 
-    match args.extract {
-        Some(extract) => {
-            if extract {
-                for i in &file {
-                    let (_, num) = show_number_of_images(i.as_str().into()).unwrap();
-                    for ind in 1..=num {
-                        let _ = dump_pixel_data_of_an_image(i.clone().into(), ind);
-                    }
-                }
+    //match args.extract {
+    //  Some(extract) => {
+    if args.extract {
+        for i in &file {
+            let (_, num) = show_number_of_images(i.as_str().into()).unwrap();
+            for ind in 1..=num {
+                let _ = dump_pixel_data_of_an_image(i.clone().into(), ind);
             }
-            Ok(())
         }
-        _ => Ok(()),
+        Ok(())
+    } else {
+        Ok(())
     }
+    //  _ => Ok(()),
+    //}
 }

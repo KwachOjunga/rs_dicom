@@ -8,7 +8,7 @@ pub mod error;
 
 fn _check_whether_file_is_dicom(file: &PathBuf) -> error::Result<bool> {
     if file.as_path().exists() {
-	let n_file = file.as_path().as_os_str().to_str().unwrap();
+        let n_file = file.as_path().as_os_str().to_str().unwrap();
         let command = Command::new("file")
             .arg(n_file)
             .stdout(Stdio::piped())
@@ -123,6 +123,7 @@ pub fn display_metadata(file: PathBuf) {
     if file.is_ok() {
         dump_file_to(output_file, &file.unwrap()).unwrap();
     } else {
-        println!("Check if the file exists");
+        //println!("Check if the file exists");
+        let _ = file.inspect_err(|e| eprintln!("Failed to read file: {e}"));
     }
 }
