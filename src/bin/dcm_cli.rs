@@ -16,15 +16,15 @@ struct Args {
     file: Vec<String>,
 
     /// Specific image frame to extract as png
-    #[arg(short, long, value_name = "frame_number(s)")]
+    #[arg(short, long, value_name = "frame_number")]
     image_to_dump: Vec<u32>,
 
     /// extract all images to a directory
-    #[arg(short, long, value_name = "true/false")]
+    #[arg(short, long)]
     extract: bool,
 
     /// Diplay number of images in the file
-    #[arg(short, long, value_name = "true/false")]
+    #[arg(short, long)]
     list: bool,
 
     /// Dump entire file metadata on screen
@@ -42,7 +42,6 @@ fn main() -> Result<(), error::CliError> {
     };
     let length = images_option.len();
 
-    //if let Some(val) = args.list.or(None) {
     if args.list {
         for i in &file {
             println!("{}", i.clone());
@@ -51,13 +50,11 @@ fn main() -> Result<(), error::CliError> {
         }
     }
 
-    //if let Some(dump) = args.dump.or(None) {
     if args.dump {
         for i in &file {
             display_metadata(i.clone().into());
         }
     }
-    //}
 
     //[TODO] there must be a bug in this return type
     //match &args.image_to_dump {
@@ -75,7 +72,6 @@ fn main() -> Result<(), error::CliError> {
     // _ => (),
     //}
 
-    // primary concern remains if the number of frames needed to be generated exceed 1
     if length > 1 {
         for i in &file {
             let i = i.clone();
@@ -89,8 +85,6 @@ fn main() -> Result<(), error::CliError> {
         ()
     }
 
-    //match args.extract {
-    //  Some(extract) => {
     if args.extract {
         for i in &file {
             let (_, num) = show_number_of_images(i.as_str().into()).unwrap();
@@ -102,6 +96,4 @@ fn main() -> Result<(), error::CliError> {
     } else {
         Ok(())
     }
-    //  _ => Ok(()),
-    //}
 }
