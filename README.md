@@ -1,13 +1,12 @@
 # dcm_cli
 
-This folder contains functions that can be used to 
-create applications that involve dicom files.
+A minimal commandline application to interact with dicom files. 
+I intend to extend  to be used with other medical file formats.
 
-It can be extended to be used with other medical file formats.
-
-# Installation
+## Installation
 
 To use the binary cli ensure you have rust installed.
+
 Run `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh` to install.
 
 Clone the repo and `cd rs_dicom` into the directory
