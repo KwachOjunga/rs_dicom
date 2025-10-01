@@ -1,9 +1,11 @@
 # dcm_cli
 
 A minimal commandline application to interact with dicom files. 
-I intend to extend  to be used with other medical file formats.
 
 ## Installation
+
+I am yet to expose the binary releases for `dcm_cli` therefore
+to use it you'll build it from source.
 
 To use the binary cli ensure you have rust installed.
 
@@ -14,3 +16,6 @@ Run `cargo install --bin dcm_cli --path=.` ro create the binary file.
 To use, view the options available via
 `dcm_cli -h`
 
+Roadmap
+---
+- [ ] It'd be nice to have this work with other medical formats.
