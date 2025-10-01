@@ -5,9 +5,9 @@ use std::io::ErrorKind;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 pub mod error;
-use opencv;
+use opencv::{core, highgui, imgcodecs, prelude::*};
 
-#[cfg(target = "linux" )]
+// #[cfg(target = "unix" )]
 fn _check_whether_file_is_dicom(file: &PathBuf) -> error::Result<bool> {
     if file.as_path().exists() {
         let n_file = file.as_path().as_os_str().to_str().unwrap();
@@ -43,7 +43,7 @@ fn _read_file_to_memory(file: PathBuf) -> error::Result<DefaultDicomObject> {
 }
 
 // [TODO] reproduce the bug in this function when it's handling a file whose value representation is altered.
-pub fn show_number_of_images(file: PathBuf) -> Result<(DefaultDicomObject, u32), error::CliError> {
+pub fn show_number_of_images(file: PathBuf) -> error::Result<(DefaultDicomObject, u32)> {
     let file = _read_file_to_memory(file);
     match file {
         Ok(dcm_file) => {
@@ -130,4 +130,64 @@ pub fn display_metadata(file: PathBuf) {
     }
 }
 
-fn view_image_using_opencv() {}
+// pub fn _yield_path_name(file: PathBuf, img_ind: u32) -> error::Result<()> {
+//     let file_name = file.clone();
+//     let file_name = file_name.as_os_str().to_str().unwrap();
+//     let (file, num) = show_number_of_images(file.into())?;
+//     if num < img_ind {
+//         println!("That index is out of index range. Current number of frames is {num}");
+//         Ok(())
+//     } else {
+//         let file = file.decode_pixel_data().unwrap();
+//         let img = file.to_dynamic_image(img_ind - 1).unwrap();
+//         let v_filename: Vec<&str> = if cfg!(windows) {
+//             file_name.split('\\').collect()
+//         } else {
+//             file_name.split('/').collect()
+//         };
+//         let path = format!("{}_{}.png", v_filename[v_filename.len() - 1], img_ind);
+//         img.save(path).unwrap();
+// }
+
+pub fn view_image_using_opencv(file: PathBuf, img_ind: u32) /*-> error::Result<()>*/
+{
+    let file_name = file.clone();
+    let file_name = file_name.as_os_str().to_str().unwrap();
+    let (file, num) = show_number_of_images(file.into()).unwrap();
+    if num < img_ind {
+        println!("That index is out of index range. Current number of frames is {num}");
+    } else {
+        let file = file.decode_pixel_data().unwrap();
+        let img = file.to_dynamic_image(img_ind - 1).unwrap();
+        let v_filename: Vec<&str> = if cfg!(windows) {
+            file_name.split('\\').collect()
+        } else {
+            file_name.split('/').collect()
+        };
+        let path = format!("{}_{}.png", v_filename[v_filename.len() - 1], img_ind);
+        img.save(&path).unwrap();
+
+        // Read image (IMREAD_COLOR loads a 3-channel color image)
+        let img = imgcodecs::imread(&path, imgcodecs::IMREAD_COLOR).unwrap();
+
+        if img.empty() {
+            eprintln!("Failed to read image at '{}'", path);
+            std::process::exit(1);
+        }
+
+        // Create a named window (flags: 0 -> autosize; highgui::WINDOW_AUTOSIZE can be used explicitly)
+        highgui::named_window("display", highgui::WINDOW_AUTOSIZE).unwrap();
+
+        // Show the image in the window
+        highgui::imshow("display", &img).unwrap();
+
+        // waitKey(0) waits indefinitely until a key is pressed.
+        // Note: wait_key is necessary for GUI housekeeping and to actually display the window.
+        highgui::wait_key(0).unwrap();
+
+        // Optionally destroy all windows
+        highgui::destroy_all_windows().unwrap();
+
+        // Ok(())
+    }
+}

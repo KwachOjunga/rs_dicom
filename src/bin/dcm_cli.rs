@@ -8,7 +8,7 @@ use clap::Parser;
 use rs_dicom::error;
 use rs_dicom::{
     display_metadata, dump_pixel_data_of_an_image, dump_pixeldata_of_multiple_images,
-    show_number_of_images,
+    show_number_of_images, view_image_using_opencv 
 };
 
 #[derive(Parser, Debug)]
@@ -31,12 +31,13 @@ struct Args {
     #[arg(short, long)]
     list: bool,
 
-    /// Dump entire file metadata on screen
+    /// Dump entire file metadata to a txt file of a similar name
     #[arg(long, short, value_name=None)]
     dump: bool,
 
+    /// permit the viewing of an image that has been dumped in the current directory
     #[arg(short, long, value_name = "frame_number")]
-    view: u32
+    view: Option<u32>,
 }
 
 fn main() -> Result<(), error::CliError> {
@@ -47,7 +48,7 @@ fn main() -> Result<(), error::CliError> {
     } else {
         vec![]
     };
-    let length = images_option.len();
+    let _length = images_option.len();
 
     if args.list {
         for i in &file {
@@ -63,34 +64,41 @@ fn main() -> Result<(), error::CliError> {
         }
     }
 
-    //[TODO] there must be a bug in this return type
-    //match &args.image_to_dump {
-    //  Some( num) => {
-    //    	let length = num.len();
-    //	for i in &file {
-    //      if length > 1 {
-    //        dump_pixeldata_of_multiple_images(i.clone().into(), num);
-    //  } else {
-    //    dump_pixel_data_of_an_image(i.clone().into(), num[0]);
-    // }
-    //}
-    //()
-    //}
-    // _ => (),
-    //}
-
-    if length > 1 {
-        for i in &file {
-            let i = i.clone();
-            let _ = dump_pixeldata_of_multiple_images(i.into(), &images_option);
+    if args.view.is_some() {
+        if let Some(ind) = args.view{
+            for i in &file {
+                view_image_using_opencv(i.clone().into(), ind);
+            }
         }
-    } else if length == 1 {
-        for i in &file {
-            let _ = dump_pixel_data_of_an_image(i.clone().into(), images_option[0]);
-        }
-    } else {
-        ()
     }
+    //[TODO] there must be a bug in this return type
+    // match &args.image_to_dump {
+    //   Some( num) => {
+    //     	let length = num.len();
+    // 	for i in &file {
+    //       if length > 1 {
+    //         dump_pixeldata_of_multiple_images(i.clone().into(), num);
+    //   } else {
+    //     dump_pixel_data_of_an_image(i.clone().into(), num[0]);
+    //  }
+    // }
+    // ()
+    // }
+    //  _ => (),
+    // }
+
+    // if length > 1 {
+    //     for i in &file {
+    //         let i = i.clone();
+    //         let _ = dump_pixeldata_of_multiple_images(i.into(), &images_option);
+    //     }
+    // } else if length == 1 {
+    //     for i in &file {
+    //         let _ = dump_pixel_data_of_an_image(i.clone().into(), images_option[0]);
+    //     }
+    // } else {
+    //     ()
+    // }
 
     if args.extract {
         for i in &file {
