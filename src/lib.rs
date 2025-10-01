@@ -5,7 +5,9 @@ use std::io::ErrorKind;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 pub mod error;
+use opencv;
 
+#[cfg(target = "linux" )]
 fn _check_whether_file_is_dicom(file: &PathBuf) -> error::Result<bool> {
     if file.as_path().exists() {
         let n_file = file.as_path().as_os_str().to_str().unwrap();
@@ -127,3 +129,5 @@ pub fn display_metadata(file: PathBuf) {
         let _ = file.inspect_err(|e| eprintln!("Failed to read file: {e}"));
     }
 }
+
+fn view_image_using_opencv() {}

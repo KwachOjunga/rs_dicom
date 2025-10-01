@@ -1,6 +1,10 @@
-//! This file illustrates various ways of manipulating  a dicom file via a command line interface.
+//! The following program allow one to perform a set of operations on dicom files
+//!
+//! To use
+//!   ```
+//!      dcm_cli -h
+//!    ```
 use clap::Parser;
-//use dicom::pixeldata::Error;
 use rs_dicom::error;
 use rs_dicom::{
     display_metadata, dump_pixel_data_of_an_image, dump_pixeldata_of_multiple_images,
@@ -30,6 +34,9 @@ struct Args {
     /// Dump entire file metadata on screen
     #[arg(long, short, value_name=None)]
     dump: bool,
+
+    #[arg(short, long, value_name = "frame_number")]
+    view: u32
 }
 
 fn main() -> Result<(), error::CliError> {
