@@ -2,6 +2,11 @@
 
 A minimal commandline application to interact with dicom files. 
 
+<figure>
+  <img src="assets/Screenshot (563).png" alt="Displaying a dicom image" />
+  <figcaption>Figure 1 — Typical dicom file containing a CT scan.</figcaption>
+</figure>
+
 ## Installation
 
 I am yet to expose the binary releases for `dcm_cli` therefore
