@@ -7,6 +7,12 @@ A minimal commandline application to interact with dicom files.
   <figcaption>Figure 1 — Typical dicom file containing a CT scan.</figcaption>
 </figure>
 
+<figure>
+  <img src="assets/screenshot_1.png" alt="Displaying a T1 FLAIR" />
+  <figcaption>Figure 1 — Typical dicom file containing a FLAIR CT scan of the brain.</figcaption>
+</figure>
+
+
 ## Installation
 
 I am yet to expose the binary releases for `dcm_cli` therefore
@@ -23,7 +29,6 @@ To use the binary cli ensure you have rust installed.
     git clone https:://github.com/KwachOjunga/rs_dicom
     cd rs_dicom
     cargo b -- --help
-
 ```
 
 
@@ -36,4 +41,4 @@ To use, view the options available via
 
 Roadmap
 ---
-- [ ] Support other medical formats.
+- [ ] Support other medical formats.(NIFTI)
