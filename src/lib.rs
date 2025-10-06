@@ -5,7 +5,7 @@ use std::io::ErrorKind;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 pub mod error;
-use opencv::{core, highgui, imgcodecs, prelude::*};
+use opencv::{highgui, imgcodecs, prelude::*};
 
 // #[cfg(target = "unix" )]
 fn _check_whether_file_is_dicom(file: &PathBuf) -> error::Result<bool> {
