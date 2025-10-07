@@ -7,6 +7,11 @@ use std::process::{Command, Stdio};
 pub mod error;
 use opencv::{highgui, imgcodecs, prelude::*};
 
+pub enum Formats {
+    DICOM,
+    NIFTI
+}
+
 // #[cfg(target = "unix" )]
 fn _check_whether_file_is_dicom(file: &PathBuf) -> error::Result<bool> {
     if file.as_path().exists() {
@@ -26,6 +31,29 @@ fn _check_whether_file_is_dicom(file: &PathBuf) -> error::Result<bool> {
         Err(std::io::Error::from(ErrorKind::NotFound).into())
     }
 }
+
+pub fn nature_of_file(file: &PathBuf) -> error::Result<Formats> {
+   
+    if file.as_path().exists() {
+        let n_file = file.as_path().as_os_str().to_str().unwrap();
+        let command = Command::new("file")
+            .arg(n_file)
+            .stdout(Stdio::piped())
+            .output()
+            .expect("Failed to execute command");
+        let cmd_out = String::from_utf8_lossy(&command.stdout);
+        if cmd_out.contains("NIfTI-1") {
+            Ok(Formats::NIFTI)
+        } else if cmd_out.contains("DICOM medical imaging data") {
+            Ok(Formats::DICOM)
+        }else{
+            Err(std::io::Error::from(ErrorKind::Unsupported).into())
+        }
+    } else {
+        Err(std::io::Error::from(ErrorKind::NotFound).into())
+    }
+}
+
 
 // [TODO] handle errors gracefully -- this None value ought not be returned arbitrarily
 fn _read_file_to_memory(file: PathBuf) -> error::Result<DefaultDicomObject> {

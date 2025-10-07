@@ -7,6 +7,8 @@ A minimal commandline application to interact with dicom files.
   <figcaption>Figure 1 — Typical dicom file containing a CT scan.</figcaption>
 </figure>
 
+<br/>
+
 <figure>
   <img src="assets/screenshot_1.png" alt="Displaying a T1 FLAIR" />
   <figcaption>Figure 1 — Typical dicom file containing a FLAIR CT scan of the brain.</figcaption>
