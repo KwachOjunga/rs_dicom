@@ -71,34 +71,6 @@ fn main() -> Result<(), error::CliError> {
             }
         }
     }
-    //[TODO] there must be a bug in this return type
-    // match &args.image_to_dump {
-    //   Some( num) => {
-    //     	let length = num.len();
-    // 	for i in &file {
-    //       if length > 1 {
-    //         dump_pixeldata_of_multiple_images(i.clone().into(), num);
-    //   } else {
-    //     dump_pixel_data_of_an_image(i.clone().into(), num[0]);
-    //  }
-    // }
-    // ()
-    // }
-    //  _ => (),
-    // }
-
-    // if length > 1 {
-    //     for i in &file {
-    //         let i = i.clone();
-    //         let _ = dump_pixeldata_of_multiple_images(i.into(), &images_option);
-    //     }
-    // } else if length == 1 {
-    //     for i in &file {
-    //         let _ = dump_pixel_data_of_an_image(i.clone().into(), images_option[0]);
-    //     }
-    // } else {
-    //     ()
-    // }
 
     if args.extract {
         for i in &file {
